@@ -11,7 +11,7 @@ import { POLICY_VAULT_ADDRESS, POLICY_VAULT_ABI } from '@/lib/contracts';
 import { useState } from 'react';
 import { AntiGravity, AntiGravityContainer } from '@/components/AntiGravity';
 
-const STATUS_MAP = ['Approved', 'Escalated', 'Rejected', 'Released'];
+const STATUS_MAP = ['None', 'Approved', 'Escalated', 'Rejected', 'Released'];
 
 const StatusBadge = ({ status }: { status: string }) => {
   if (status === 'Approved' || status === 'Released') return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 font-mono text-xs shadow-none">{status}</Badge>;

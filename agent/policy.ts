@@ -14,7 +14,7 @@ function getVaultAddress(): string {
   } catch (e) {
     // fallback
   }
-  return "0xD5BBD98D03Fa1B1DdD2D944E251cbE02F5eedcdC";
+  return "0xde4BB098DF60E9F2C58ab9070749b1EAA93b3Be6";
 }
 
 const VAULT_ABI = [

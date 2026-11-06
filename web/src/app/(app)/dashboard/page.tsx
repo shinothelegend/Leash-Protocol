@@ -1,22 +1,74 @@
 'use client';
 
-import { Card, Metric, Text, AreaChart, BadgeDelta, Flex } from '@tremor/react';
+import { useState } from 'react';
+import { Card, Metric, Text, AreaChart, BadgeDelta, Flex, Button as TremorButton } from '@tremor/react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { ArrowRight, Activity, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight, Activity, ShieldCheck, Zap, PlayCircle, AlertTriangle } from 'lucide-react';
 import { useReadContract, useReadContracts } from 'wagmi';
 import { POLICY_VAULT_ADDRESS, POLICY_VAULT_ABI } from '@/lib/contracts';
 import { AntiGravity, AntiGravityContainer } from '@/components/AntiGravity';
 import { Counter } from '@/components/Counter';
 import { motion } from 'framer-motion';
 
-const STATUS_MAP = ['Approved', 'Escalated', 'Rejected', 'Released'];
+const STATUS_MAP = ['None', 'Approved', 'Escalated', 'Rejected', 'Released'];
 
 const StatusBadge = ({ status }: { status: string }) => {
   if (status === 'Approved' || status === 'Released') return <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 font-mono text-xs shadow-none">{status}</Badge>;
   if (status === 'Escalated') return <Badge className="bg-amber-50 text-amber-600 border-amber-200 font-mono text-xs shadow-none">Escalated</Badge>;
   if (status === 'Rejected') return <Badge className="bg-red-50 text-red-600 font-mono text-xs border-red-200 shadow-none">Rejected</Badge>;
   return <Badge className="bg-slate-100 text-slate-600 border-slate-200 font-mono text-xs shadow-none">{status}</Badge>;
+};
+
+const DemoButton = ({ amount, label, icon }: { amount: number, label: string, icon: React.ReactNode }) => {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{txHash?: string, isEscalated?: boolean, error?: string} | null>(null);
+
+  const handlePay = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      const res = await fetch('/api/demo/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amountUsd: amount })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to execute payment');
+      setResult(data);
+    } catch (e: any) {
+      setResult({ error: e.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <TremorButton 
+        size="xs" 
+        variant={amount > 0.5 ? "secondary" : "primary"}
+        onClick={handlePay} 
+        loading={loading}
+        className="shadow-sm"
+      >
+        {icon}
+        {label}
+      </TremorButton>
+      {result && (
+        <div className="text-[10px] font-mono max-w-xs mt-1">
+          {result.error && <span className="text-red-500 break-words block">Error: {result.error}</span>}
+          {result.txHash && (
+            <div className="text-emerald-600 bg-emerald-50/50 p-1.5 rounded border border-emerald-100/50 mt-1">
+              <span className="block text-emerald-800 font-semibold mb-0.5">Tx Hash:</span>
+              <span className="break-all select-all">{result.txHash}</span>
+            </div>
+          )}
+          {result.isEscalated && !result.txHash && <span className="text-amber-600 block mt-1">Escalated for approval</span>}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default function DashboardPage() {
@@ -97,6 +149,24 @@ export default function DashboardPage() {
             </span>
           </div>
         </div>
+      </AntiGravity>
+
+      {/* Demo Controls */}
+      <AntiGravity delay={0.05}>
+        <Card className="mb-8 border-indigo-200 bg-indigo-50/50">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <Text className="text-indigo-900 font-bold text-lg flex items-center gap-2">
+                <PlayCircle className="w-5 h-5 text-indigo-600" /> Demo Controls
+              </Text>
+              <Text className="text-indigo-700 text-sm mt-1">Trigger real on-chain x402 payments to demonstrate the policy firewall.</Text>
+            </div>
+            <div className="flex gap-4">
+              <DemoButton amount={0.01} label="Send small payment ($0.01)" icon={<Zap className="w-4 h-4 mr-2" />} />
+              <DemoButton amount={0.75} label="Send over-cap payment ($0.75)" icon={<AlertTriangle className="w-4 h-4 mr-2" />} />
+            </div>
+          </div>
+        </Card>
       </AntiGravity>
 
       {/* KPI Row */}
@@ -208,7 +278,7 @@ export default function DashboardPage() {
             <div className="flex-1 space-y-3">
               {recentActivity.length === 0 ? (
                  <div className="text-center py-10 text-ink-400 text-xs font-mono">No recent x402 settlements</div>
-              ) : recentActivity.map((tx: {id: string, vendor: string, amount: string, timestamp: number, status: string}, idx: number) => (
+              ) : recentActivity.map((tx: any, idx: number) => (
                 <motion.div 
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}

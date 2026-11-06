@@ -8,7 +8,7 @@ dataSources:
     name: PolicyVault
     network: hedera-testnet
     source:
-      address: "0x0000000000000000000000000000000000000000"
+      address: "0xD5BBD98D03Fa1B1DdD2D944E251cbE02F5eedcdC"
       abi: PolicyVault
       startBlock: 0
     mapping:

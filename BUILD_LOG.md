@@ -17,4 +17,6 @@
 ✅ Phase 8 — web/src/app/page.tsx — enhanced with premium Vanilla CSS
 ✅ Phase 9 — README.md — created architecture overview
 ✅ Phase 9 — AI_USAGE.md — created AI usage report
+✅ Phase 10 — Over-cap Payment Escalation Fix — Fixed contract address mismatch in contracts.ts, aligned Status enum indices across approvals/dashboard/payments/reputation pages, dynamic reason badges on approvals card. Tested real on-chain escalation tx: 0xa521a46301d59dacaad4bf1f6f6433edeaf8b35d7ef2676cb35e82b842b77e65.
+✅ Phase 11 — contracts/PolicyVault.sol — Security patch (Nov 2026): Fixed UTC daily window grid anchoring & entrypoint rollover, stale Chainlink price staleness checks, sub-cent dust accounting resolution escalation, escalation expiry (ESCALATION_TTL), reentrancy guards, rate limiting (minPaymentInterval), zero-address validations, and emergency sweepTo. Verified via 15/15 tests in scripts/verify_vault_policy.ts, recompiled contract, updated web ABI, rebuilt graph codegen/wasm, and confirmed clean frontend typecheck.
 🚀 Build Complete!

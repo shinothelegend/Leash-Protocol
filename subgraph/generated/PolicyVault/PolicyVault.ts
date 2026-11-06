@@ -10,6 +10,28 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class DayRollover extends ethereum.Event {
+  get params(): DayRollover__Params {
+    return new DayRollover__Params(this);
+  }
+}
+
+export class DayRollover__Params {
+  _event: DayRollover;
+
+  constructor(event: DayRollover) {
+    this._event = event;
+  }
+
+  get day(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get spentBeforeResetUsdCents(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
 export class PaymentApproved extends ethereum.Event {
   get params(): PaymentApproved__Params {
     return new PaymentApproved__Params(this);
@@ -224,6 +246,48 @@ export class PolicyVault extends ethereum.SmartContract {
     return new PolicyVault("PolicyVault", address);
   }
 
+  ESCALATION_TTL(): BigInt {
+    let result = super.call("ESCALATION_TTL", "ESCALATION_TTL():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_ESCALATION_TTL(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "ESCALATION_TTL",
+      "ESCALATION_TTL():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  PRICE_STALENESS(): BigInt {
+    let result = super.call(
+      "PRICE_STALENESS",
+      "PRICE_STALENESS():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_PRICE_STALENESS(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "PRICE_STALENESS",
+      "PRICE_STALENESS():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   agent(): Address {
     let result = super.call("agent", "agent():(address)", []);
 
@@ -270,6 +334,29 @@ export class PolicyVault extends ethereum.SmartContract {
 
   try_dayStart(): ethereum.CallResult<BigInt> {
     let result = super.tryCall("dayStart", "dayStart():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  minPaymentInterval(): BigInt {
+    let result = super.call(
+      "minPaymentInterval",
+      "minPaymentInterval():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_minPaymentInterval(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "minPaymentInterval",
+      "minPaymentInterval():(uint256)",
+      [],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -620,6 +707,36 @@ export class RequestPaymentCall__Outputs {
   }
 }
 
+export class SetMinPaymentIntervalCall extends ethereum.Call {
+  get inputs(): SetMinPaymentIntervalCall__Inputs {
+    return new SetMinPaymentIntervalCall__Inputs(this);
+  }
+
+  get outputs(): SetMinPaymentIntervalCall__Outputs {
+    return new SetMinPaymentIntervalCall__Outputs(this);
+  }
+}
+
+export class SetMinPaymentIntervalCall__Inputs {
+  _call: SetMinPaymentIntervalCall;
+
+  constructor(call: SetMinPaymentIntervalCall) {
+    this._call = call;
+  }
+
+  get secondsBetween(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetMinPaymentIntervalCall__Outputs {
+  _call: SetMinPaymentIntervalCall;
+
+  constructor(call: SetMinPaymentIntervalCall) {
+    this._call = call;
+  }
+}
+
 export class SetPolicyCall extends ethereum.Call {
   get inputs(): SetPolicyCall__Inputs {
     return new SetPolicyCall__Inputs(this);
@@ -684,6 +801,40 @@ export class SetVendorAllowedCall__Outputs {
   _call: SetVendorAllowedCall;
 
   constructor(call: SetVendorAllowedCall) {
+    this._call = call;
+  }
+}
+
+export class SweepToCall extends ethereum.Call {
+  get inputs(): SweepToCall__Inputs {
+    return new SweepToCall__Inputs(this);
+  }
+
+  get outputs(): SweepToCall__Outputs {
+    return new SweepToCall__Outputs(this);
+  }
+}
+
+export class SweepToCall__Inputs {
+  _call: SweepToCall;
+
+  constructor(call: SweepToCall) {
+    this._call = call;
+  }
+
+  get to(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get amountWei(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class SweepToCall__Outputs {
+  _call: SweepToCall;
+
+  constructor(call: SweepToCall) {
     this._call = call;
   }
 }

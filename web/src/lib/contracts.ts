@@ -1,4 +1,4 @@
-export const POLICY_VAULT_ADDRESS = '0xD5BBD98D03Fa1B1DdD2D944E251cbE02F5eedcdC' as `0x${string}`;
+export const POLICY_VAULT_ADDRESS = '0xde4BB098DF60E9F2C58ab9070749b1EAA93b3Be6' as `0x${string}`;
 export const POLICY_VAULT_ABI = [
   {
     "inputs": [
@@ -25,6 +25,25 @@ export const POLICY_VAULT_ABI = [
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "day",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "spentBeforeResetUsdCents",
+        "type": "uint256"
+      }
+    ],
+    "name": "DayRollover",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -177,6 +196,32 @@ export const POLICY_VAULT_ABI = [
   },
   {
     "inputs": [],
+    "name": "ESCALATION_TTL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PRICE_STALENESS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "agent",
     "outputs": [
       {
@@ -204,6 +249,19 @@ export const POLICY_VAULT_ABI = [
   {
     "inputs": [],
     "name": "dayStart",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minPaymentInterval",
     "outputs": [
       {
         "internalType": "uint256",
@@ -374,6 +432,19 @@ export const POLICY_VAULT_ABI = [
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "secondsBetween",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinPaymentInterval",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_dailyCapUsdCents",
         "type": "uint256"
       },
@@ -417,6 +488,24 @@ export const POLICY_VAULT_ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountWei",
+        "type": "uint256"
+      }
+    ],
+    "name": "sweepTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

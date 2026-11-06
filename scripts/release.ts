@@ -7,7 +7,8 @@ async function main() {
   const pk = "0x4926a2291e31a4eec280d897df333bd7007bdd9c239cbb6c04adad633f5adf74";
   const wallet = new ethers.Wallet(pk, provider);
   
-  const contractAddress = "0xD5BBD98D03Fa1B1DdD2D944E251cbE02F5eedcdC";
+  const deployedAddresses = JSON.parse(fs.readFileSync("./deployed-addresses.json", "utf8"));
+  const contractAddress = deployedAddresses.vault;
   const artifact = JSON.parse(fs.readFileSync("./artifacts/contracts/PolicyVault.sol/PolicyVault.json", "utf8"));
   const vault = new ethers.Contract(contractAddress, artifact.abi, wallet);
 
@@ -17,16 +18,16 @@ async function main() {
   let escalatedId = -1;
   for (let i = count - 1n; i >= 0n; i--) {
     const p = await vault.payments(i);
-    if (p.status === 1n) { // Escalated
-      escalatedId = i;
+    if (p.status === 2n) { // Escalated
+      escalatedId = Number(i);
       console.log(`Found escalated payment ID: ${i}`);
       break;
     }
   }
 
   if (escalatedId === -1) {
-    console.log("No escalated payments found. Releasing payment 1 anyway...");
-    escalatedId = 1n; // Just force release ID 1 for demo purposes if it exists
+    console.log("No escalated payments found. Releasing payment 2 anyway...");
+    escalatedId = 2n; // Just force release ID 2 for demo purposes if it exists
   }
 
   console.log(`Releasing payment ${escalatedId}...`);

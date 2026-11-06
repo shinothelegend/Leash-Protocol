@@ -24,6 +24,12 @@ export default function ApprovalsPage() {
     functionName: 'dailyCapUsdCents',
   });
 
+  const { data: perTxCap } = useReadContract({
+    address: POLICY_VAULT_ADDRESS,
+    abi: POLICY_VAULT_ABI,
+    functionName: 'perTxCapUsdCents',
+  });
+
   const { data: spentToday } = useReadContract({
     address: POLICY_VAULT_ADDRESS,
     abi: POLICY_VAULT_ABI,
@@ -31,6 +37,7 @@ export default function ApprovalsPage() {
   });
 
   const capUsd = dailyCap ? Number(dailyCap) / 100 : 0;
+  const perTxCapUsd = perTxCap ? Number(perTxCap) / 100 : 0.50;
   const spentUsd = spentToday ? Number(spentToday) / 100 : 0;
 
   const count = Number(paymentsCount || 0n);
@@ -47,26 +54,37 @@ export default function ApprovalsPage() {
     })),
   });
 
+  const getReason = (amountUsdRaw: number) => {
+    if (amountUsdRaw > perTxCapUsd) {
+      return `Exceeds per-tx cap ($${perTxCapUsd.toFixed(2)})`;
+    }
+    if (spentUsd + amountUsdRaw > capUsd) {
+      return `Exceeds daily cap ($${capUsd.toFixed(2)})`;
+    }
+    return 'Policy Escalation';
+  };
+
   const allPayments = paymentsData?.map((result, i) => {
     if (result.status === 'success' && result.result) {
       const [vendor, amountWei, amountUsdCents, status, timestamp, resource] = result.result as unknown as [string, bigint, bigint, number, bigint, string];
+      const usdVal = Number(amountUsdCents) / 100;
       return {
         id: paymentIndices[i].toString(),
         vendor,
         amountWei: amountWei.toString(),
-        amountUsd: `$${(Number(amountUsdCents) / 100).toFixed(2)}`,
-        amountUsdRaw: Number(amountUsdCents) / 100,
+        amountUsd: `$${usdVal.toFixed(2)}`,
+        amountUsdRaw: usdVal,
         status, 
         timestamp: Number(timestamp) * 1000,
-        reason: 'Policy Escalation',
+        reason: getReason(usdVal),
       };
     }
     return null;
   }).filter(Boolean) || [];
 
-  const pendingRequests = allPayments.filter(p => p?.status === 1);
-  const approvedCount = allPayments.filter(p => p?.status === 0 || p?.status === 3).length;
-  const rejectedCount = allPayments.filter(p => p?.status === 2).length;
+  const pendingRequests = allPayments.filter(p => p?.status === 2);
+  const approvedCount = allPayments.filter(p => p?.status === 1 || p?.status === 4).length;
+  const rejectedCount = allPayments.filter(p => p?.status === 3).length;
 
   const donutData = [
     { name: 'Pending', value: pendingRequests.length },
