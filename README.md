@@ -71,4 +71,4 @@ npm run agent
 
 ## 📜 License
 
-MIT License. Built with ❤️ for ETHGlobal ETHOnline 2026.
+MIT License. Built with 💪&❤️ for ETHGlobal ETHOnline 2026.
